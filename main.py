@@ -8,41 +8,15 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 
 
-signup_form = """
-    <style>
-        .error {{ color: red; }}
-    </style>
-    <h1>Signup</h1>
-    <form method='POST'>
-        <label>Username
-            <input name="username" type="text" value='{username}' />
-        </label>
-        <p class="error">{username_error}</p>
-        <label>Password
-            <input name="password" type="text" value='{password}' />
-        </label>
-        <br>
-        <br>
-        <label for="verify">Verify Password</label>
-            <input name="verify" type="password" />
-        <p class="error">{password_error}</p>
-        <label for="email">Email (optional)</label>
-        <input name="email" value="">
-        <br>
-        <input type="submit" value="Submit" />
-    </form>
-    """
-
 @app.route('/')
 def display_signup_form():
-    return signup_form.format(username='', username_error='',
-        password='', verify='', password_error='', email='')
+    return render_template('index.html')
 
 
-def validate(num):
+def validate(user_pass):
     try:
-        (num)
-        print(num)
+        (user_pass)
+        print(user_pass)
         return True
     except ValueError:
         return False
@@ -57,36 +31,62 @@ def validate_signup():
 
     username_error = ''
     password_error = ''
+    verify_error = ''
+    email_error = ''
 
-    if  username == "":
+    if  username =="":
         print("yes")
-        username_error = 'Please enter a username'
+        username_error = 'Please enter username'
         username = ''
-        return signup_form.format(username_error=username_error)
-    if len(username) < 3 or len(username) > 20:
+       
+    elif len(username) < 3 or len(username) > 20:
         username_error = 'username not correct length please enter between 3 to 20 characters'
         username = ''
 
-    if not validate(password):
-        password_error = 'Not a valid password'
+    elif " " in username:
+        username_error = 'No Spaces please'
+        username = ''
+
+    if password =="":
+        password_error = 'Please enter password'
         password = ''
     else:
-        if not password == verify:
-            password_error = 'passwords do not match, please re-enter'
+        if  password != verify:
+            verify_error = 'passwords do not match, please re-enter'
             verify = ''
 
-        if len(password) < 3 or len(password) > 20:
+        elif len(password) < 3 or len(password) > 20:
                 password_error = 'password not correct length please enter between 3 to 20 characters'
                 password = ''
-        
 
-    if not password_error and not username_error:
-        return ("Welcome, " + (username))
+    if len(email):
+
+        length_and_spaces_bool = email
+        print(length_and_spaces_bool)
+       
+        at_and_dot_bool = False
+       
+        if "@" in email and "." in email:
+            if email.count("@") == 1 and email.count(".") == 1:
+                at_and_dot_bool = True
+
+        if not length_and_spaces_bool or not at_and_dot_bool:
+            email_error = 'You have entered an invalid email.'
+            email = ''
+        if " " in email:
+            email_error = 'You have entered a space - invalid email.'
+            email = ''
+    if not password_error and not verify_error and not username_error and not email_error:
+        return redirect("/welcome?name={0}".format(username))
     else:
-        return signup_form.format(username_error=username_error,
-            password_error=password_error,
+        return render_template('index.html', username_error=username_error,
+            password_error=password_error, verify_error=verify_error, email_error = email_error, 
             username=username,
-            password=password)
+            password=password, email=email)
 
+@app.route('/welcome')
+def welcome():
+    username = request.args.get('name')
+    return render_template('welcome.html', username = username)
 
 app.run()
