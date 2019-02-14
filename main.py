@@ -1,6 +1,4 @@
 from flask import Flask, request, redirect, render_template
-import cgi
-import os
 import jinja2
 
 
@@ -16,7 +14,6 @@ def display_signup_form():
 def validate(user_pass):
     try:
         (user_pass)
-        print(user_pass)
         return True
     except ValueError:
         return False
@@ -35,7 +32,6 @@ def validate_signup():
     email_error = ''
 
     if  username =="":
-        print("yes")
         username_error = 'Please enter username'
         username = ''
        
@@ -62,7 +58,6 @@ def validate_signup():
     if len(email):
 
         length_and_spaces_bool = email
-        print(length_and_spaces_bool)
        
         at_and_dot_bool = False
        
